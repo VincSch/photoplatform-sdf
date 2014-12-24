@@ -138,7 +138,6 @@ public class UserManagerImpl implements UserManager {
             throw new ManagerException(ManagerException.NOT_FOUND);
         }
 
-        // TODO check expired date
         user.setPassword(new BCryptPasswordEncoder().encode(newPassword));
 
         // Remove the old tokens

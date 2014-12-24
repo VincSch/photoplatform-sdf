@@ -28,7 +28,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
-import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -82,14 +81,11 @@ public class AuthenticationController extends BaseAPIController {
 
         try {
             authentication = authenticationManager.authenticate(token);
-        } catch (DisabledException | LockedException | BadCredentialsException ex) {
-            // User is disabled
-            bindingResult.addError(new ObjectError("user", "disabled"));
-            throw new BadRequestException("login", bindingResult);
-        } catch (NoResultException ex) {
-            bindingResult.addError(new FieldError("login", "notFound", messages
-                    .getMessage("User.notFound")));
-            throw new BadRequestException("login", bindingResult);
+        } catch (DisabledException | LockedException ex) {
+            // User is disabled or locked
+            throw new BadRequestException(messages.getMessage("User.locked"));
+        } catch (BadCredentialsException | NoResultException ex) {
+            throw new BadRequestException(messages.getMessage("User.notFound"));
         }
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
@@ -195,7 +191,6 @@ public class AuthenticationController extends BaseAPIController {
             userManager.passwordReset(dto.getPasswordResetToken(), dto.getNewPassword());
         } catch (ManagerException ex) {
             switch (ex.getCode()) {
-                // TODO exception handling
                 case ManagerException.NOT_FOUND:
                     throw new BadRequestException(messages.getMessage("Password.reset.notFound"));
                 default:
