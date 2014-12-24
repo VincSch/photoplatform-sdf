@@ -9,7 +9,7 @@
 
         <div class="row">
 
-            <form name="form" class="form-horizontal" role="form" ng-controller="ProfileCtrl"
+            <form name="form" class="form-horizontal" role="form" ng-controller="UserCtrl"
                   novalidate>
                 <div class="col-md-10">
 
@@ -327,7 +327,7 @@
                         <h4 class="modal-title" id="myModalLabel">Passwort ändern</h4>
                     </div>
                     <div class="modal-body">
-                        <form name="modalform" class="form-horizontal" role="form" ng-controller="ProfileCtrl"
+                        <form name="modalform" class="form-horizontal" role="form" ng-controller="UserCtrl"
                               novalidate>
                             <div class="form-group has-feedback"
                                  ng-class="{'has-error' : (modalform.password.$invalid || errors.password) && modalform.password.$dirty}">

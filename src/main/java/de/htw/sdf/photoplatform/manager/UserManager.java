@@ -22,13 +22,30 @@ public interface UserManager {
      * Register user.
      *
      * @param email     the email
-     * @param firstName
-     * @param lastName
-     * @param password  the password  @throws ManagerException the exception
+     * @param firstName the first name
+     * @param lastName the last name
+     * @param password  the password
+     *
+     * @throws ManagerException the exception
      */
     void registerUser(final String email,
-        String firstName, String lastName, final String password)
-        throws ManagerException;
+                      String firstName, String lastName, final String password)
+            throws ManagerException;
+
+    /**
+     * Sends password recovery to the specified email.
+     *
+     * @param email the email
+     */
+    void passwordLost(final String email) throws ManagerException;
+
+    /**
+     * Reset user password
+     *
+     * @param passwordResetToken the password reset token
+     * @param newPassword        the new password
+     */
+    void passwordReset(String passwordResetToken, final String newPassword) throws ManagerException;
 
     /**
      * Update user data.
@@ -145,8 +162,9 @@ public interface UserManager {
      * @param swift    the swift
      * @return user who wants to become photographer
      */
-    boolean becomePhotographer(long userId, final String company, final String phone, final String homepage, final String paypalID, final String iban, final String swift) throws ManagerException;
-   
+    boolean becomePhotographer(long userId, final String company, final String phone, final String homepage,
+                               final String paypalID, final String iban, final String swift) throws ManagerException;
+
     /**
      * Check user admin role.
      *
@@ -171,4 +189,5 @@ public interface UserManager {
      * @return true or false.
      */
     Boolean isRoleIncluded(User user, String roleName);
+
 }

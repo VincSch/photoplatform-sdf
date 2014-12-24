@@ -3,8 +3,6 @@ package de.htw.sdf.photoplatform.manager.common;
 import de.htw.sdf.photoplatform.persistence.model.User;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -36,7 +34,9 @@ public class MailService extends DAOReferenceCollector {
      */
     public boolean sendMail(User user, String subject, String message) {
         SimpleMailMessage msg = new SimpleMailMessage(templateMessage);
-        if (subject == null || message == null || user == null) return false;
+        if (subject == null || message == null || user == null) {
+            return false;
+        }
         String email = user.getUsername();
         msg.setSubject(subject);
         msg.setTo(email);

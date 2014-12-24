@@ -196,4 +196,19 @@ public class UserDAOImpl extends GenericDAOImpl<User> implements UserDAO,
 
         return (List<User>) query.getResultList();
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public User findByPasswordResetToken(final String passwordResetToken) {
+        Query query = createQuery("SELECT u FROM User u WHERE u.passwordResetToken = :token");
+        query.setParameter("token", passwordResetToken);
+
+        try {
+            return (User) query.getSingleResult();
+        } catch (NoResultException ex) {
+            return null;
+        }
+    }
 }

@@ -5,21 +5,26 @@
 
 package de.htw.sdf.photoplatform.webservice;
 
-import static org.hamcrest.Matchers.notNullValue;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
+import com.dumbster.smtp.SimpleSmtpServer;
+import de.htw.sdf.photoplatform.common.BaseAPITester;
+import de.htw.sdf.photoplatform.persistence.model.User;
+import de.htw.sdf.photoplatform.webservice.dto.PasswordResetDto;
+import de.htw.sdf.photoplatform.webservice.dto.UserCredential;
+import de.htw.sdf.photoplatform.webservice.dto.UserRegister;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MvcResult;
 
-import de.htw.sdf.photoplatform.common.BaseAPITester;
-import de.htw.sdf.photoplatform.persistence.model.User;
-import de.htw.sdf.photoplatform.webservice.dto.UserCredential;
-import de.htw.sdf.photoplatform.webservice.dto.UserRegister;
+import java.util.HashMap;
+import java.util.Map;
+
+import static org.hamcrest.Matchers.notNullValue;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
  * Test for user loginAsAdmin register user
@@ -164,6 +169,103 @@ public class AuthenticationControllerTest extends BaseAPITester {//BaseTester {
                 .andReturn();
 
         System.out.println(result.getResponse().getContentAsString());
+    }
+
+    @Test
+    public void testPasswordLostAndReset() throws Exception {
+
+        final String email = "valid@mail.de";
+        final String lostPassword = "123";
+        final String newPassword = "321";
+
+        UserRegister userRegister = new UserRegister();
+        userRegister.setFirstName("valid");
+        userRegister.setLastName("user");
+
+        userRegister.setEmail(email);
+
+        // i will lost this password...
+        userRegister.setPassword(lostPassword);
+        userRegister.setPasswordConfirm(lostPassword);
+
+        // 1. Register user
+        mockMvc
+                .perform(
+                        post("/api/user/register")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(
+                                        mapper.writeValueAsString(userRegister))
+                                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+
+        User user = userDAO.findByEmail(email);
+
+        String oldPassword = user.getPassword();
+
+        Assert.assertTrue(user != null);
+        Assert.assertTrue(user.getPasswordResetToken() == null);
+
+        Map<String, String> map = new HashMap<>();
+        map.put("email", email);
+
+        // Start email server
+        SimpleSmtpServer server = SimpleSmtpServer.start(1313);
+
+        // 2. Oh boy ... forgot my password oO
+        mockMvc
+                .perform(
+                        post("/api" + Endpoints.USER_PASSWORD_LOST)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(
+                                        mapper.writeValueAsString(map))
+                                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+
+        // Check if email is here
+        Assert.assertEquals(true, server.getReceivedEmailSize() == 1);
+        // TODO parse email
+
+        // reload user from DB
+        user = userDAO.findByEmail(email);
+
+        Assert.assertTrue(user.getPasswordResetToken() != null);
+
+        String passwordResetToken = user.getPasswordResetToken();
+
+        PasswordResetDto dto = new PasswordResetDto();
+        dto.setPasswordResetToken(passwordResetToken);
+        dto.setNewPassword(newPassword);
+        dto.setPasswordConfirm(newPassword);
+
+        // 3. set new password
+        mockMvc
+                .perform(
+                        post("/api" + Endpoints.USER_PASSWORD_RESET)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(
+                                        mapper.writeValueAsString(dto))
+                                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+
+        // reload user from DB
+        user = userDAO.findByEmail(email);
+
+        Assert.assertTrue(user.getPasswordResetToken() == null);
+        // Old password should be changed
+        Assert.assertTrue(!user.getPassword().equals(oldPassword));
+
+        // 4. Login user
+        UserCredential userCredential = new UserCredential();
+        userCredential.setEmail(email);
+        userCredential.setPassword(newPassword);
+
+        mockMvc.perform(
+                post("/api/user/login").contentType(MediaType.APPLICATION_JSON)
+                        .content(mapper.writeValueAsString(userCredential))
+                        .accept(MediaType.APPLICATION_JSON)).andExpect(
+                status().isOk());
+
+        server.stop();
     }
 
     @After

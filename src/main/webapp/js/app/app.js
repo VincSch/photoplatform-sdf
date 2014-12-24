@@ -10,35 +10,41 @@ var photoplatform = angular.module('photoplatform',
 /**
  * App configuration.
  */
-photoplatform.config(['$routeProvider', '$locationProvider', '$httpProvider',
+photoplatform.config([
+    '$routeProvider',
+    '$locationProvider',
+    '$httpProvider',
     function ($routeProvider, $locationProvider, $httpProvider) {
         // Enable HTML5 strategy (without # in urls)
         $locationProvider.html5Mode(true);
 
         $routeProvider.when('/profile', {
             templateUrl: '/views/partials/profile/index.html',
-            controller: 'ProfileCtrl'
+            controller: 'UserCtrl'
         }).when('/register', {
             templateUrl: '/views/partials/home/register.html',
             controller: 'AuthCtrl'
         }).when('/login', {
             templateUrl: '/views/partials/profile/login.html',
             controller: 'AuthCtrl'
+        }).when('/profile/password/reset', {
+            templateUrl: '/views/partials/home/passwordreset.html',
+            controller: 'AuthCtrl'
         }).when('/profile/admin', {
             templateUrl: '/views/partials/profile/admin/control.html',
             controller: 'AdminMenuCtrl'
         }).when('/profile/edit', {
             templateUrl: '/views/partials/profile/editUser.html',
-            controller: 'ProfileCtrl'
+            controller: 'UserCtrl'
         }).when('/profile/view', {
             templateUrl: '/views/partials/profile/view.html',
-            controller: 'ProfileCtrl'
+            controller: 'UserCtrl'
         }).when('/profile/admin/edit/user/:userId', {
             templateUrl: '/views/partials/profile/admin/editUser.html',
             controller: 'AdminEditUserCtrl'
         }).when('/profile/photograph/register', {
             templateUrl: '/views/partials/profile/photographer/register.html',
-            controller: 'ProfileCtrl'
+            controller: 'UserCtrl'
         }).when('/profile/photograph/showcase', {
             templateUrl: '/views/partials/profile/photographer/showcase.html',
             controller: ''
@@ -80,7 +86,8 @@ photoplatform.config(['$routeProvider', '$locationProvider', '$httpProvider',
                 }
                 else {
                     if (status !== 404) {
-                        $rootScope.error = method + " on " + url + " failed with status " + status;
+                        var error = method + " on " + url + " failed with status " + status;
+                        $rootScope.error = response.data.message || error;
                     }
                 }
 

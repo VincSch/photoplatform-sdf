@@ -59,6 +59,9 @@ public class User extends AbstractBaseAuditEntity implements UserDetails {
     @Column(name = "IS_ENABLED")
     private boolean enabled;
 
+    @Column(name = "LOST_PASSWORD_TOKEN", nullable = true)
+    private String passwordResetToken;
+
     /**
      * User constructor.
      */
@@ -291,4 +294,19 @@ public class User extends AbstractBaseAuditEntity implements UserDetails {
     public void setPhotographerData(PhotographerData photographerData) {
         this.photographerData = photographerData;
     }
+
+    /**
+     * @return the lost password token
+     */
+    public String getPasswordResetToken() {
+        return passwordResetToken;
+    }
+
+    /**
+     * @param passwordResetToken the lost password token
+     */
+    public void setPasswordResetToken(String passwordResetToken) {
+        this.passwordResetToken = passwordResetToken;
+    }
+
 }
