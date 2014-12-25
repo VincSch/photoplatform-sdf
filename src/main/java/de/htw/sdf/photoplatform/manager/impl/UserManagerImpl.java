@@ -6,9 +6,11 @@
 
 package de.htw.sdf.photoplatform.manager.impl;
 
+import de.htw.sdf.photoplatform.common.Messages;
 import de.htw.sdf.photoplatform.exception.common.AbstractBaseException;
 import de.htw.sdf.photoplatform.exception.common.ManagerException;
 import de.htw.sdf.photoplatform.manager.UserManager;
+import de.htw.sdf.photoplatform.manager.common.MailService;
 import de.htw.sdf.photoplatform.persistence.model.PhotographerData;
 import de.htw.sdf.photoplatform.persistence.model.Role;
 import de.htw.sdf.photoplatform.persistence.model.User;
@@ -16,12 +18,16 @@ import de.htw.sdf.photoplatform.persistence.model.UserRole;
 import de.htw.sdf.photoplatform.repository.RoleDAO;
 import de.htw.sdf.photoplatform.repository.UserDAO;
 import de.htw.sdf.photoplatform.repository.UserRoleDAO;
+import org.apache.log4j.Logger;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import org.springframework.web.util.UriComponents;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -42,13 +48,19 @@ public class UserManagerImpl implements UserManager {
     @Resource
     private UserRoleDAO userRoleDAO;
 
+    @Resource
+    private MailService mailService;
+
+    @Resource
+    private Messages messages;
+
     /**
      * {@inheritDoc}
      */
     @Override
     public void registerUser(final String email,
-        final String firstName, final String lastName,
-        final String password) throws ManagerException {
+                             final String firstName, final String lastName,
+                             final String password) throws ManagerException {
 
         checkUser(email, password);
 
@@ -71,11 +83,65 @@ public class UserManagerImpl implements UserManager {
         Role role = roleDAO.findByName(Role.CUSTOMER);
         if (role == null) {
             throw new RuntimeException("User role = " + Role.CUSTOMER
-                + " does not exists.");
+                    + " does not exists.");
         }
 
         userRole.setRole(role);
         userRoleDAO.create(userRole);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void passwordLost(final String email) throws ManagerException {
+        User user = userDAO.findByEmail(email);
+
+        if (user == null) {
+            throw new ManagerException(ManagerException.NOT_FOUND);
+        }
+
+        // Generate new password
+        Date now = new Date();
+        // Generate some random shit
+        String userAndDate = String.valueOf(user.toString()) + now;
+        String randomToken = new BCryptPasswordEncoder().encode(userAndDate);
+
+        user.setPasswordResetToken(randomToken);
+
+        UriComponents uriComponents =
+                ServletUriComponentsBuilder.fromCurrentContextPath().path("/profile/password/reset")
+                        .queryParam("token", randomToken).build();
+
+        String resetPasswordUrl = uriComponents.toUriString();
+
+        String subject = messages.getMessage("Password.lost.subject");
+        String message = messages.getMessage("Password.lost.message", user.getFirstName(), resetPasswordUrl);
+
+        // Send message to user
+        if (!mailService.sendMail(user, subject, message)) {
+            // TODO this is Internal Server Error Exception
+            throw new ManagerException(ManagerException.BAD_REQUEST);
+        }
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void passwordReset(String passwordResetToken,
+                              final String newPassword) throws ManagerException {
+        User user = userDAO.findByPasswordResetToken(passwordResetToken);
+
+        if (user == null) {
+            throw new ManagerException(ManagerException.NOT_FOUND);
+        }
+
+        user.setPassword(new BCryptPasswordEncoder().encode(newPassword));
+
+        // Remove the old tokens
+        user.setPasswordResetToken(null);
     }
 
     /**
@@ -86,7 +152,7 @@ public class UserManagerImpl implements UserManager {
      * @throws ManagerException the exception
      */
     private void checkUser(final String email, final String password)
-        throws ManagerException {
+            throws ManagerException {
         if (email == null || password == null) {
             throw new RuntimeException("This should not happen");
         }
@@ -272,7 +338,8 @@ public class UserManagerImpl implements UserManager {
      */
     @Override
     public boolean becomePhotographer(long userId, final String company, final String phone,
-                                      final String homepage, final String paypalID, final String iban, final String swift) throws ManagerException {
+                                      final String homepage, final String paypalID, final String iban,
+                                      final String swift) throws ManagerException {
         User user = userDAO.findById(userId);
         if (user == null) {
             throw new ManagerException(AbstractBaseException.NOT_FOUND);

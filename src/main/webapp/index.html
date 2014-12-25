@@ -72,6 +72,13 @@
         </li>
         <li ng-hide="isLoggedIn()">
             <span class="glyphicon glyphicon-pencil"></span>
+            <a class="navbar-right" href="#"
+               data-toggle="modal" data-target="#passwordLost">
+                Passwort vergessen?
+            </a>
+        </li>
+        <li ng-hide="isLoggedIn()">
+            <span class="glyphicon glyphicon-pencil"></span>
             <a class="navbar-right" onclick="fadeOutMenu();"
                href="/register">Registrierung</a>
         </li>
@@ -88,9 +95,8 @@
         <!-- Brand and toggle get grouped for better mobile display -->
         <div class="navbar-header">
             <div class="menu-trigger"></div>
-            <a class="navbar-brand" href="/"><img src="/img/PhotLogoK.png"
-                                                  width="85" height="30"
-                                                  border="0" alt="Home"></a>
+            <a class="navbar-brand" href="/">
+                <img src="/img/PhotLogoK.png" width="85" height="30" border="0" alt="Home"></a>
         </div>
 
         <!-- Collect the nav links, forms, and other content for toggling -->
@@ -111,14 +117,18 @@
                         Warenkorb
                     </a>
                 </li>
-                <li>
-                    <a class="navbar-right"
-                       href="/register"
-                       ng-hide="isLoggedIn()">Registrierung</a>
+                <li ng-hide="isLoggedIn()">
+                    <a class="navbar-right" href="#"
+                       data-toggle="modal" data-target="#passwordLost">
+                        Passwort vergessen?
+                    </a>
                 </li>
-                <li>
-                    <a class="navbar-right" href="/"
-                       ng-show="isLoggedIn()" ng-click="logout()">Abmelden</a>
+                <li ng-hide="isLoggedIn()">
+                    <a class="navbar-right"
+                       href="/register">Registrierung</a>
+                </li>
+                <li ng-show="isLoggedIn()">
+                    <a class="navbar-right" href="/" ng-click="logout()">Abmelden</a>
                 </li>
             </ul>
 
@@ -171,8 +181,47 @@
     </div>
     <p class="navbar-left">Copyright 2014&nbsp;</p>
 </div>
+<!-- Lost password dialog -->
+<div class="modal fade" id="passwordLost" tabindex="-1" role="dialog" aria-labelledby="passwordLostLabel"
+     aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                        aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="passwordLostLabel">Passwort vergessen?</h4>
+            </div>
+            <form class="form-horizontal" ng-controller="AuthCtrl">
+                <div class="modal-body">
+                    <p>Du hast dein Passwort vergessen? Das ist wahrlich kein Grund zur Panik. Tippe hier deine E-Mail
+                        Adresse ein und wir schicken dir umgehend ein neues Passwort per E-Mail zu.</p>
+
+
+                    <div class="input-group has-feedback"
+                         ng-class="{'has-error' : (form.email.$error.required || errors.email) && form.email.$dirty}">
+                        <label for="email" class="control-label input-group-addon">Email</label>
+                        <input name="email" id="email" placeholder="Email"
+                               type="text" class="form-control" ng-model="email" required>
+                    </div>
+                    <div class="help-block" ng-show="form.email.$dirty">
+                        <span ng-show="form.email.$error.required">Dieses Feld wird benötigt</span>
+                        <span ng-show="errors.email">{{errors.email[0]}}</span>
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" ng-click="passwordLost(email)">Abschicken</button>
+                </div>
+            </form>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->
 
 <script src="//cdnjs.cloudflare.com/ajax/libs/less.js/2.0.0/less.min.js"></script>
+
 <script src="/js/jquery/jquery.js"></script>
 <script src="/js/bootstrap/bootstrap.js"></script>
 <script src="/js/angular/angular.js"></script>
@@ -180,29 +229,32 @@
 <script src="/js/angular/angular-resource.js"></script>
 <script src="/js/angular/angular-cookies.js"></script>
 <script src="/js/angular/ui-bootstrap-tpls-0.11.0.min.js"></script>
+
+<!-- App & Models -->
 <script src="/js/app/app.js"></script>
 <script src="/js/app/models.js"></script>
 
-<script src="/js/app/services.js"></script>
-
-<script src="/js/app/controllers/controllers.js"></script>
-
-<!-- Admin files -->
+<!-- Controller -->
 <script src="/js/app/controllers/admincontrollers.js"></script>
-
-<!-- Collection files -->
+<script src="/js/app/controllers/authcontroller.js"></script>
+<script src="/js/app/controllers/carouselcontroller.js"></script>
 <script src="/js/app/controllers/collectioncontrollers.js"></script>
-<script src="/js/app/services/collection.js"></script>
-
-
-<!-- Image files -->
-<script src="/js/app/directives/imagedirectives.js"></script>
 <script src="/js/app/controllers/imagecontrollers.js"></script>
+<script src="/js/app/controllers/photographercontroller.js"></script>
+<script src="/js/app/controllers/usercontroller.js"></script>
+
+<!-- Services -->
+<script src="/js/app/services/auth.js"></script>
+<script src="/js/app/services/collection.js"></script>
 <script src="/js/app/services/image.js"></script>
+<script src="/js/app/services/photographer.js"></script>
+<script src="/js/app/services/user.js"></script>
 
+<!-- Directives -->
+<script src="/js/app/directives/imagedirectives.js"></script>
 
-<script src="/js/app/controllers/profilecontrollers.js"></script>
-
+<!-- Misc and Common -->
 <script src="/js/main.js"></script>
+
 </body>
 </html>

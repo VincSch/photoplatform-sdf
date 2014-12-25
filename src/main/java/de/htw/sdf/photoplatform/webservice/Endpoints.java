@@ -32,17 +32,29 @@ public final class Endpoints {
      */
     public static final String API_PREFIX = "/api";
 
-    /**
-     * Endpoints for users.
-     */
+    //
+    // Endpoints for users.
+    //
+
     /**
      * USER_LOGIN.
      */
     public static final String USER_LOGIN = "/user/login";
+
     /**
      * USER_REGISTER.
      */
     public static final String USER_REGISTER = "/user/register";
+
+    /**
+     * POST: set new password.
+     */
+    public static final String USER_PASSWORD_LOST = "/user/password/lost";
+
+    /**
+     * POST: Reset password.
+     */
+    public static final String USER_PASSWORD_RESET = "/user/password/reset";
 
     /**
      * USER_BECOME_PHOTOGRAPHER.
@@ -53,10 +65,6 @@ public final class Endpoints {
      * USERS_UPDATE.
      */
     public static final String USERS_UPDATE = "/users/update";
-    /**
-     * USER_BY_NAME.
-     */
-    public static final String USER_BY_NAME = "/user/{name}";
 
     /**
      * all users between start and count.
@@ -206,11 +214,11 @@ public final class Endpoints {
      */
     public static String[] securedAdminEndpoints() {
         String[] securedEndpoints = {
-            restBuilder(USERS_START_COUNT),
-            restBuilder(USERS_BECOME_PHOTOGRAPHERS),
-            restBuilder(USER_MAKE_ADMIN),
-            restBuilder(USER_LOCK),
-            restBuilder(USER_UNLOCK)
+                restBuilder(USERS_START_COUNT),
+                restBuilder(USERS_BECOME_PHOTOGRAPHERS),
+                restBuilder(USER_MAKE_ADMIN),
+                restBuilder(USER_LOCK),
+                restBuilder(USER_UNLOCK)
         };
         return securedEndpoints;
     }

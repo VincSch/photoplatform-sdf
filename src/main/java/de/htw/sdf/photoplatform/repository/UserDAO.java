@@ -105,4 +105,12 @@ public interface UserDAO extends UserDetailsService, GenericDAO<User> {
      */
     List<User> findPhotographersToActivate();
 
+    /**
+     * Find user by specified passwordResetToken.
+     *
+     * @param passwordResetToken the passwordResetToken
+     * @return the user
+     */
+    User findByPasswordResetToken(final String passwordResetToken);
+
 }

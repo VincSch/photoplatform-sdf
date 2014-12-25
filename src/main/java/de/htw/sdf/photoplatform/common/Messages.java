@@ -42,12 +42,7 @@ public class Messages {
      *             look like "{0}", "{1,date}", "{2,time}" within a message),
      * @return the message
      */
-    public String getMessage(String code, Object[] args) {
-        // ween ich das Dokumentation richtig verstanden habe,
-        // LocaleContextHolder.getLocale() - gibt die Locale des Betriebssystems zurück.
-        // In meinem Fall ist die Betriebssystem russisch :). Es gibt aber keine Property Datei
-        // mit russischen Texten. :). Verzeihen Sie mir mein Deutsch, english wäre noch schlimmer :)
-        //return messageSource.getMessage(code, args, LocaleContextHolder.getLocale());
+    public String getMessage(String code, String ... args) {
         return messageSource.getMessage(code, args, defaultLocale);
     }
 

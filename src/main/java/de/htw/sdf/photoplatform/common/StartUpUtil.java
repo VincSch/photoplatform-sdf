@@ -2,6 +2,7 @@ package de.htw.sdf.photoplatform.common;
 
 import de.htw.sdf.photoplatform.persistence.model.Image;
 import de.htw.sdf.photoplatform.repository.ImageDAO;
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,6 +16,8 @@ import java.util.List;
  */
 @Service
 public class StartUpUtil {
+
+    private final Logger log = Logger.getLogger(this.getClass().getName());
 
     @Autowired
     ServletContext servletContext;
@@ -30,25 +33,34 @@ public class StartUpUtil {
         String thumbPath = servletContext.getRealPath("/") + "/img/upload/";
         String originalPath = "upload/";
 
-        List<String> thumbResults = new ArrayList<String>();
-        File[] thumbFiles = new File(thumbPath).listFiles();
-        for (File file : thumbFiles) {
-            if (file.isFile()) {
-                thumbResults.add(file.getName());
+        List<String> thumbResults = new ArrayList<>();
+        List<String> origResults = new ArrayList<>();
+
+        try {
+            File[] thumbFiles = new File(thumbPath).listFiles();
+            for (File file : thumbFiles) {
+                if (file.isFile()) {
+                    thumbResults.add(file.getName());
+                }
             }
+        } catch (NullPointerException ex) {
+            log.info("Directory " + thumbPath + " not found!");
         }
 
-        List<String> origResults = new ArrayList<String>();
-        File[] origFiles = new File(originalPath).listFiles();
-        for (File file : origFiles) {
-            if (file.isFile()) {
-                origResults.add(file.getName());
+        try {
+            File[] origFiles = new File(originalPath).listFiles();
+            for (File file : origFiles) {
+                if (file.isFile()) {
+                    origResults.add(file.getName());
+                }
             }
+        } catch (NullPointerException ex) {
+            log.info("Directory " + originalPath + " not found!");
         }
 
         List<Image> dbImages = imageDAO.findAll();
-        List<String> dbThumbs = new ArrayList<String>();
-        List<String> dbOrig = new ArrayList<String>();
+        List<String> dbThumbs = new ArrayList<>();
+        List<String> dbOrig = new ArrayList<>();
         for (Image image : dbImages) {
             dbThumbs.add(image.getSmallThumbPath().replace("/img/upload/", ""));
             dbThumbs.add(image.getMobileThumbPath().replace("/img/upload/", ""));

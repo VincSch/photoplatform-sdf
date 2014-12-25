@@ -6,6 +6,8 @@
 
 package de.htw.sdf.photoplatform.persistence;
 
+import org.hibernate.validator.constraints.Email;
+
 import javax.persistence.*;
 import javax.validation.constraints.Size;
 import java.util.Date;
@@ -23,14 +25,18 @@ public abstract class AbstractBaseAuditEntity extends AbstractBaseEntity {
     @Temporal(TemporalType.TIMESTAMP)
     private Date createdAt;
 
-    @Size(max = 20)
+    // TODO this should be "User" entity
+    // createdBy reference user email
+    @Email
     private String createdBy;
 
     @Temporal(TemporalType.TIMESTAMP)
     private Date updatedAt;
 
-    @Size(max = 20)
-    @Column(name = "UPDATED_BY", length = 20)
+    // TODO this should be "User" entity
+    // updatedBy reference user email
+    @Email
+    @Column(name = "UPDATED_BY")
     private String updatedBy;
 
     /**
