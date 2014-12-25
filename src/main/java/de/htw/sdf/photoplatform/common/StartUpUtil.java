@@ -2,6 +2,7 @@ package de.htw.sdf.photoplatform.common;
 
 import de.htw.sdf.photoplatform.persistence.model.Image;
 import de.htw.sdf.photoplatform.repository.ImageDAO;
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,6 +16,8 @@ import java.util.List;
  */
 @Service
 public class StartUpUtil {
+
+    private final Logger log = Logger.getLogger(this.getClass().getName());
 
     @Autowired
     ServletContext servletContext;
@@ -41,7 +44,7 @@ public class StartUpUtil {
                 }
             }
         } catch (NullPointerException ex) {
-            // ignore
+            log.info("Directory " + thumbPath + " not found!");
         }
 
         try {
@@ -52,7 +55,7 @@ public class StartUpUtil {
                 }
             }
         } catch (NullPointerException ex) {
-            // ignore
+            log.info("Directory " + originalPath + " not found!");
         }
 
         List<Image> dbImages = imageDAO.findAll();

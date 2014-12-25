@@ -103,7 +103,7 @@ photoplatform.config([
 
     }]).run(function ($rootScope, $http, $location, $cookieStore, UserService) {
 
-    //Reset error and sucess when a new view is loaded
+    //Reset error and success when a new view is loaded
     $rootScope.$on('$viewContentLoaded', function () {
         delete $rootScope.error;
         if ($rootScope.transferSuccess == false || $rootScope.transferSuccess == undefined) {
