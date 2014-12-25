@@ -6,6 +6,7 @@ var photoplatform = angular.module('photoplatform',
         'photoplatformControllers',
         'ui.bootstrap'
     ]);
+var photoplatformControllers = angular.module('photoplatformControllers', []);
 
 /**
  * App configuration.

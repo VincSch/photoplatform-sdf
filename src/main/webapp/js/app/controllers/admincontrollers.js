@@ -1,5 +1,3 @@
-var photoplatformControllers = angular.module('photoplatformControllers', []);
-
 /**
  * ViewController for admin page.
  */
